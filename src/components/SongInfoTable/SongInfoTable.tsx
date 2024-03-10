@@ -7,7 +7,7 @@ export default function SongInfoTable({ song }: { song: Song }) {
   const currentSong = currentMusic?.song?.id === song?.id && currentMusic?.playlist?.id === String(song?.albumId)
 
   const handleSongClick = (songId, albumId): void => {
-    if(currentMusic?.playlist === null){
+    if (currentMusic?.playlist === null) {
       GET({ params: { id: String(albumId) } })
         .then((res) => res.json())
         .then((data) => {
@@ -18,10 +18,19 @@ export default function SongInfoTable({ song }: { song: Song }) {
       return
     }
     const { songs } = currentMusic
-    if(songId !== currentMusic?.song?.id){
+    if (songId !== currentMusic?.song?.id) {
       setCurrentMusic({ ...currentMusic, song: songs[songId - 1] })
-      if(!isPlaying) setIsPlaying(true)
-    } 
+      if (!isPlaying) setIsPlaying(true)
+    }
+    if (currentMusic?.playlist?.id !== String(albumId) && songId !== currentMusic?.song?.id) {
+      GET({ params: { id: String(albumId) } })
+        .then((res) => res.json())
+        .then((data) => {
+          const { songs, playlist } = data
+          setCurrentMusic({ playlist, song: songs[songId - 1], songs })
+          setIsPlaying(true)
+        })
+    }
   }
   return (
     <>
