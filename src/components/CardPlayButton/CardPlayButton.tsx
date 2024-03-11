@@ -11,6 +11,11 @@ export default function CardPlayButton({ id }: { id: string }) {
       return
     }
 
+    if(currentMusic?.playlist !== null && !isPlaying){
+      setIsPlaying(true)
+      return
+    } 
+
     GET({ params: { id } })
       .then((res) => res.json())
       .then((data) => {
@@ -19,6 +24,7 @@ export default function CardPlayButton({ id }: { id: string }) {
         setCurrentMusic({ playlist, song: songs[0], songs })
       })
       .catch((error) => console.error('Error:', error))
+    
   }
 
   return (

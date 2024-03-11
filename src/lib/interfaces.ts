@@ -13,5 +13,7 @@ export interface PlayerStore {
 }
 
 export interface CurrentMusic {
-
+ playlist: Playlist | null
+ song: Song | null
+ songs: Song[]
 }

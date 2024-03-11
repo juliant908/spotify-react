@@ -1,20 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Slider } from '../Slider/Slider';
-import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
+import { usePlayerStore } from '../../store/playerStore';
+import { useHandleTimeUpdate } from '../../hooks/useHandleTimeUpdate';
+import { useHandleSongEnd } from '../../hooks/useHandleSongEnd';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function SongControl ({audio}: {audio: any}) {
- const [currentTime, setCurrentTime] = useState(0)
- useEffect(() => {
-  audio.current.addEventListener('timeupdate', handleTimeUpdate)
-
-  return () => {
-   audio.current.removeEventListener('timeupdate', handleTimeUpdate)
-  }
- }, [])
-
- const handleTimeUpdate = () => {
-  setCurrentTime(audio.current.currentTime)
- }
+export default function SongControl({ audio }: { audio: any }) {
+ const { currentMusic, setCurrentMusic, setIsPlaying } = usePlayerStore((state: any) => state)
+ const [currentTime] = useHandleTimeUpdate(audio)
+ useHandleSongEnd(audio, currentMusic, setCurrentMusic, setIsPlaying)
 
  const formatTime = (time: number) => {
   if (time == null) return `0:00`

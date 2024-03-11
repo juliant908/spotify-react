@@ -1,34 +1,44 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Song } from "@lib/data"
 import { GET } from "@lib/get-info-playlist.json"
 import { usePlayerStore } from "@store/playerStore"
 export default function SongInfoTable({ song }: { song: Song }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { isPlaying, setIsPlaying, setCurrentMusic, currentMusic } = usePlayerStore((state: any) => state)
+  const { isPlaying, setIsPlaying, setCurrentMusic } = usePlayerStore((state: any) => state)
+  let { currentMusic } = usePlayerStore((state: any) => state)
   const currentSong = currentMusic?.song?.id === song?.id && currentMusic?.playlist?.id === String(song?.albumId)
 
-  const handleSongClick = (songId, albumId): void => {
+  const handleSongClick = async (songId, albumId): Promise<any> => {
     if (currentMusic?.playlist === null) {
-      GET({ params: { id: String(albumId) } })
+      await GET({ params: { id: String(albumId) } })
         .then((res) => res.json())
         .then((data) => {
           const { songs, playlist } = data
+          currentMusic = { playlist, song: songs[songId - 1], songs }
           setCurrentMusic({ playlist, song: songs[songId - 1], songs })
           setIsPlaying(true)
         })
-      return
+        .finally(() => {
+          return setCurrentMusic(currentMusic)
+        })
     }
     const { songs } = currentMusic
-    if (songId !== currentMusic?.song?.id) {
-      setCurrentMusic({ ...currentMusic, song: songs[songId - 1] })
+    if (songId !== currentMusic?.song?.id && currentMusic?.playlist !== null && currentMusic?.playlist?.id === String(albumId)) {
+      currentMusic = { ...currentMusic, song: songs[songId - 1] }
+      await setCurrentMusic({ ...currentMusic, song: songs[songId - 1] })
       if (!isPlaying) setIsPlaying(true)
     }
+
     if (currentMusic?.playlist?.id !== String(albumId) && songId !== currentMusic?.song?.id) {
-      GET({ params: { id: String(albumId) } })
+      await GET({ params: { id: String(albumId) } })
         .then((res) => res.json())
         .then((data) => {
           const { songs, playlist } = data
+          currentMusic = { playlist, song: songs[songId - 1], songs }
           setCurrentMusic({ playlist, song: songs[songId - 1], songs })
           setIsPlaying(true)
+        })
+        .finally(() => {
+          setCurrentMusic(currentMusic)
         })
     }
   }
