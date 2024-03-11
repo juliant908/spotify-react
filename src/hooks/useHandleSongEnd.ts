@@ -12,6 +12,7 @@ export function useHandleSongEnd(audio, currentMusic, setCurrentMusic, setIsPlay
    setCurrentSongIndex(currentMusic?.song?.id)
    if (currentMusic?.song?.id === currentMusic?.songs?.length) {
     setIsPlaying(false)
+    setCurrentMusic({playlist: null, songs: [], song: null})
    }
   }
 
